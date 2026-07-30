@@ -136,11 +136,8 @@ fn is_our_backend(host: &str, port: u16) -> bool {
 
 /// Costruisce il path dell'eseguibile sidecar a partire dalla resource_dir.
 fn sidecar_exe(resource_dir: &std::path::Path) -> PathBuf {
-    let bin_name = if cfg!(windows) {
-        "pii-backend.exe"
-    } else {
-        "pii-backend"
-    };
+    // Progetto Windows-only: il sidecar e' sempre pii-backend.exe
+    let bin_name = "pii-backend.exe";
     resource_dir
         .join("backend")
         .join("pii-backend")
