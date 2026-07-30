@@ -176,6 +176,9 @@ DETECTORS = [
     ("PIVA",
      re.compile(r"(?<!\d)\d{11}(?!\d)"),
      piva_ok, True),
+    ("ZIPCODE",
+     re.compile(r"\b\d{5}\b"),
+     None, True),  # CAP italiano: span unico a priorita' sul modello (issue #11)
     ("TELEPHONENUM",
      re.compile(r"(?<![\w.])(?:\+39[\s.]?)?(?:3\d{2}[\s.]?\d{3}[\s.]?\d{3,4}"
                 r"|0\d{1,3}[\s.]?\d{5,8})(?![\w])"),
