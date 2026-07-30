@@ -1,8 +1,8 @@
-# Build dell'app desktop (CPU — Windows e Linux)
+# Build dell'app desktop (CPU — Windows)
 
 Crea un eseguibile/installer **standalone e offline** dell'anonimizzatore PII.
 Usa una build **CPU di PyTorch** (gira su qualsiasi PC, niente CUDA richiesta).
-Windows: vedi sotto. **Linux** (.deb/.AppImage): vedi **[§ Build Linux](#build-linux-debappimage)**.
+Questo progetto supporta esclusivamente **Windows 11 e versioni successive**.
 
 Esistono due modi di impacchettare, entrambi CPU/offline:
 
@@ -51,49 +51,6 @@ Installer **per-utente** (niente admin), in italiano, con shortcut e disinstalla
 - Per rigenerare con un **nuovo modello**: riaddestra (crea `models\rizzo-pii-0.3B-v{VERSION}\`),
   aggiorna il path in **`build_sidecar.spec`** (riga `datas += [("models/rizzo-pii-0.3B-v...", "pii_model")]`),
   poi rifai il passo 1 e il passo 2. Build attuale: **v1.2.0**.
-
----
-
-## Build Linux (.deb/.AppImage)
-
-**Non si compila da Windows** (PyInstaller e i bundle Tauri Linux/`webkit2gtk` vanno fatti su
-Linux). Usa una macchina Ubuntu/Debian o **WSL2**. Tutto è automatizzato in **`build_linux.sh`**
-(root): stesso `build_sidecar.spec`, ma il sidecar esce come `pii-backend` (senza `.exe`) e i
-bundle sono `deb`/`appimage`. Il Rust ([`lib.rs`](../tauri/src-tauri/src/lib.rs)) sceglie già il
-nome del binario in base al SO (`cfg!(windows)`).
-
-```bash
-# prerequisiti di sistema (una volta)
-sudo apt update && sudo apt install -y \
-  build-essential curl wget file libssl-dev libxdo-dev patchelf \
-  libwebkit2gtk-4.1-dev librsvg2-dev libayatana-appindicator3-dev
-# + Rust (https://rustup.rs) e Node.js 18+
-
-# copia il modello addestrato sulla macchina Linux in models/rizzo-pii-0.3B-v1.2.0/
-bash build_linux.sh
-```
-Output: `tauri/src-tauri/target/release/bundle/{deb/*.deb, appimage/*.AppImage}`. Il modello è
-gitignorato (~1,23 GB): va copiato a mano sulla macchina Linux, non è nel repo.
-
-### Con Docker (consigliato: riproducibile, non sporca il sistema)
-
-`Dockerfile.linux` (root) crea un'immagine con tutta la toolchain + le dipendenze Python già
-installate (torch CPU, transformers, pyinstaller). Sorgenti e modello si **montano** a runtime
-(`-v`), così l'immagine resta riutilizzabile e l'output finisce sull'host. Serve Docker (su
-Windows: Docker Desktop con backend WSL2).
-
-```bash
-cd /mnt/d/documenti/rizzo_pii     # o una copia in ~/ (più veloce: vedi nota)
-docker build -t rizzo-pii-builder -f Dockerfile.linux .
-docker run --rm -e VENV=/opt/venv -e APPIMAGE_EXTRACT_AND_RUN=1 \
-  -v "$PWD":/work -w /work rizzo-pii-builder
-# artefatti -> tauri/src-tauri/target/release/bundle/{deb,appimage}/  (visibili anche da Windows)
-```
-- L'immagine si ricostruisce solo se cambiano le dipendenze; le build successive sono veloci.
-- Se l'**AppImage** fallisce nel container (FUSE): `... rizzo-pii-builder bash build_linux.sh deb`
-  produce solo il `.deb`.
-- **Velocità**: buildare sul mount `/mnt/d` (filesystem Windows) è lento. Per build ripetute,
-  `rsync` i sorgenti + il modello in `~/` dentro WSL e monta quella copia.
 
 ---
 
