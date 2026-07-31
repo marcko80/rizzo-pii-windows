@@ -294,9 +294,9 @@ Packaging instructions in **[docs/BUILD.md](docs/BUILD.md)**.
 > **⬇️ Download.** Questo fork punta esclusivamente a **Windows 11+**. Un installer Windows
 > pronto (Tauri/NSIS) e' in preparazione — vedi **[docs/BUILD.md](docs/BUILD.md)** per compilarlo tu
 > stesso, oppure consulta la **[pagina Releases upstream](https://github.com/Rizzo-AI-Academy/rizzo-pii/releases/latest)**
-> per le build multi-piattaforma originali. Nel frattempo, se hai gia' il modello in `models/`
-> (vedi [CLAUDE.md](CLAUDE.md)), fai doppio click su **[avvia.bat](avvia.bat)** nella cartella del
-> progetto: prepara tutto da solo e apre l'app nel browser, senza riga di comando.
+> per le build multi-piattaforma originali. Per usare subito questo fork basta fare doppio click su **[avvia.bat](avvia.bat)** nella cartella
+> del progetto: prepara l'ambiente Python, scarica automaticamente il modello AI (~1,2 GB, una sola
+> volta) dalla release ufficiale del progetto originale e apre l'app nel browser, tutto senza riga di comando.
 
 ---
 
