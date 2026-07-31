@@ -713,6 +713,7 @@ PAGE = r"""
         <option value="en">🇬🇧 English</option>
       </select>
       <button class="gear" id="gearBtn" title="Configurazione server" aria-label="Server config" onclick="openConfig()">⚙️</button>
+      <button class="gear" id="complianceBtn" title="Compliance aziendale" aria-label="Compliance aziendale" onclick="openCompliance()">🛡️</button>
       <span class="info" id="infoBtn" tabindex="0" role="button" aria-label="Avviso / info">⚠️<span class="tip" data-i18n="notice"></span></span>
     </div>
   </header>
@@ -772,6 +773,7 @@ PAGE = r"""
           <div class="row">
             <button class="btn" id="copy">📋 <span data-i18n="copy">Copia per ChatGPT</span></button>
             <button class="ghost" id="dl">⬇️ <span data-i18n="dl">Scarica dizionario</span></button>
+            <button class="ghost" id="report" title="Solo conteggi per tipo, nessun dato reale" onclick="exportReport()">📊 <span data-i18n="report_btn">Report sessione</span></button>
             <span class="hint" id="ulock"></span>
           </div>
         <div class="hint privacy-note" data-i18n="copy_hint">Solo segnaposto: nessun dato reale lascia questo PC. Puoi incollarlo in ChatGPT o in un altro LLM in sicurezza.</div>
@@ -861,12 +863,24 @@ PAGE = r"""
   </div>
 </div>
 
+<!-- compliance modal -->
+<div class="cfg-overlay" id="complianceOverlay">
+  <div class="cfg-card" style="width:600px;max-width:92vw;max-height:80vh;overflow:auto;text-align:left">
+    <h3>🛡️ <span data-i18n="compliance_title">Compliance aziendale</span></h3>
+    <div data-i18n="compliance_body"><p>rizzo-pii è pensato per <b>facilitare</b> (non sostituire) il rispetto di alcuni principi normativi, perché l'anonimizzazione avviene <b>in locale</b>, sul PC dell'azienda, prima di qualsiasi invio a servizi cloud di terzi.</p><ul><li><b>AI Act (Reg. UE 2024/1689):</b> mantenere i dati personali sotto controllo locale e fuori dalle pipeline di modelli di terze parti favorisce la governance dei dati e la supervisione umana richieste dal regolamento.</li><li><b>NIS2:</b> ridurre la quantità di dati realmente trasmessi a servizi esterni riduce la superficie di attacco e l'esposizione in caso di incidente presso il fornitore cloud.</li><li><b>ISO/IEC 42001:</b> il flusso anonimizza, copia, ripristina, con un dizionario locale sempre revisionabile dall'utente, supporta la tracciabilità e il controllo umano del processo.</li></ul><p><i>Nota: rizzo-pii è uno strumento tecnico di supporto. Non costituisce una certificazione di conformità e non sostituisce una valutazione legale/organizzativa da parte di un professionista.</i></p></div>
+    <div class="cfg-btns" style="justify-content:flex-end">
+      <button class="ghost" onclick="closeCompliance()" data-i18n="compliance_close">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const $ = id => document.getElementById(id);
 let DATA = null;            // ultimo risultato analyze
 let MAP = {};              // {placeholder -> valore} sessione corrente
 const off = new Set();     // label nascoste nella preview
 let L = 'it';              // lingua UI corrente
+const sessionStats = {docs:0, entities:0, byTag:{}};  // solo conteggi, nessun dato reale, resta in memoria locale
 
 /* ---- i18n (IT default, EN opzionale) ---- */
 const T = {
@@ -910,6 +924,9 @@ const T = {
   cfg_available:"Porta disponibile ✓", cfg_in_use:"Porta occupata ✗",
   cfg_saved:"Configurazione salvata (riavvia per applicare)",
   cfg_restart_note:"Le modifiche avranno effetto al prossimo avvio.",
+  compliance_title:"Compliance aziendale", compliance_close:"Chiudi",
+  compliance_body:"<p>rizzo-pii è pensato per <b>facilitare</b> (non sostituire) il rispetto di alcuni principi normativi, perché l'anonimizzazione avviene <b>in locale</b>, sul PC dell'azienda, prima di qualsiasi invio a servizi cloud di terzi.</p><ul><li><b>AI Act (Reg. UE 2024/1689):</b> mantenere i dati personali sotto controllo locale e fuori dalle pipeline di modelli di terze parti favorisce la governance dei dati e la supervisione umana richieste dal regolamento.</li><li><b>NIS2:</b> ridurre la quantità di dati realmente trasmessi a servizi esterni riduce la superficie di attacco e l'esposizione in caso di incidente presso il fornitore cloud.</li><li><b>ISO/IEC 42001:</b> il flusso anonimizza, copia, ripristina, con un dizionario locale sempre revisionabile dall'utente, supporta la tracciabilità e il controllo umano del processo.</li></ul><p><i>Nota: rizzo-pii è uno strumento tecnico di supporto. Non costituisce una certificazione di conformità e non sostituisce una valutazione legale/organizzativa da parte di un professionista.</i></p>",
+  report_btn:"Report sessione",
  },
  en:{
   tagline:"local model on CPU · GDPR compliant", badge:"100% local",
@@ -951,6 +968,9 @@ const T = {
   cfg_available:"Port available ✓", cfg_in_use:"Port in use ✗",
   cfg_saved:"Config saved (restart to apply)",
   cfg_restart_note:"Changes take effect on next startup.",
+  compliance_title:"Corporate compliance", compliance_close:"Close",
+  compliance_body:"<p>rizzo-pii is designed to <b>help support</b> (not replace) certain regulatory principles, because anonymization happens <b>locally</b>, on the company's own PC, before anything is sent to third-party cloud services.</p><ul><li><b>AI Act (EU Reg. 2024/1689):</b> keeping personal data under local control and out of third-party model pipelines supports the data governance and human oversight the regulation calls for.</li><li><b>NIS2:</b> reducing the amount of data actually transmitted to external services reduces the attack surface and exposure in case of an incident at the cloud provider.</li><li><b>ISO/IEC 42001:</b> the anonymize-copy-restore workflow, with a local dictionary the user can always review, supports traceability and human control over the process.</li></ul><p><i>Note: rizzo-pii is a technical support tool. It does not constitute a compliance certification and does not replace a legal/organizational assessment by a qualified professional.</i></p>",
+  report_btn:"Session report",
  }
 };
 const tt=k=>T[L][k];
@@ -1014,6 +1034,8 @@ async function run(){
     if(!resp.ok){toast(d.error||tt('t_error'),false);return;}
     if(d.source_text&&file)$('src').value=d.source_text;
     DATA=d;MAP=d.mapping;off.clear();
+    sessionStats.docs++; sessionStats.entities+=(d.n_entities||0);
+    for(const k in (d.by_label||{})){ sessionStats.byTag[k]=(sessionStats.byTag[k]||0)+d.by_label[k]; }
     localStorage.setItem('pii_map',JSON.stringify(MAP));
     render();
     toast(T[L].pii_found(d.n_entities,d.n_unique));
@@ -1158,6 +1180,22 @@ async function openConfig(){
 }
 function closeConfig(){$('cfgOverlay').classList.remove('open');}
 $('cfgOverlay').addEventListener('click',e=>{if(e.target===$('cfgOverlay'))closeConfig();});
+/* ---- compliance modal ---- */
+function openCompliance(){$('complianceOverlay').classList.add('open');}
+function closeCompliance(){$('complianceOverlay').classList.remove('open');}
+$('complianceOverlay').addEventListener('click',e=>{if(e.target===$('complianceOverlay'))closeCompliance();});
+/* ---- report di sessione: solo conteggi per tipo, nessun dato reale, nessuna rete ---- */
+function exportReport(){
+  const rows=Object.entries(sessionStats.byTag);
+  let out='rizzo-pii - report di sessione (solo conteggi, nessun dato reale)\n';
+  out+='Generato: '+new Date().toLocaleString()+'\n';
+  out+='Documenti anonimizzati: '+sessionStats.docs+'\n';
+  out+='Entita totali rilevate: '+sessionStats.entities+'\n\n';
+  out+='Tag,Conteggio\n'+rows.map(r=>r[0]+','+r[1]).join('\n');
+  const blob=new Blob([out],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='rizzo-pii-report-'+Date.now()+'.csv';a.click();
+}
 async function checkPort(){
   const h=$('cfgHost').value.trim(),p=parseInt($('cfgPort').value);
   if(!p||p<1024||p>65535){$('cfgStatus').className='cfg-status fail';$('cfgStatus').textContent=tt('cfg_in_use');return;}
