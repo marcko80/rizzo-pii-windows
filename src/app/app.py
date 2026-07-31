@@ -774,6 +774,7 @@ PAGE = r"""
             <button class="ghost" id="dl">⬇️ <span data-i18n="dl">Scarica dizionario</span></button>
             <span class="hint" id="ulock"></span>
           </div>
+        <div class="hint privacy-note" data-i18n="copy_hint">Solo segnaposto: nessun dato reale lascia questo PC. Puoi incollarlo in ChatGPT o in un altro LLM in sicurezza.</div>
         </div>
       </div>
     </div>
@@ -881,6 +882,7 @@ const T = {
   empty_prev:"L'anteprima con le PII evidenziate apparirà qui.",
   anon_ph:"Il testo anonimizzato apparirà qui.",
   copy:"Copia per ChatGPT", dl:"Scarica dizionario",
+  copy_hint:"Solo segnaposto: nessun dato reale lascia questo PC. Puoi incollarlo in ChatGPT o in un altro LLM in sicurezza.",
   dict_title:"Dizionario reversibile", dict_hint:"resta solo qui, in locale",
   th_id:"ID", th_val:"Valore originale", th_type:"Tipo",
   callout:"Incolla qui la <b>risposta dell'LLM</b> (che contiene i placeholder come <span class=\"kbd\">[FULLNAME_1]</span>): l'app rimette i valori veri usando il dizionario di questa sessione. Se hai chiuso e riaperto l'app, <b>carica il dizionario .json</b> che avevi salvato.",
@@ -921,6 +923,7 @@ const T = {
   empty_prev:"The preview with highlighted PII will appear here.",
   anon_ph:"The anonymized text will appear here.",
   copy:"Copy for ChatGPT", dl:"Download dictionary",
+  copy_hint:"Placeholders only: no real data leaves this PC. You can safely paste it into ChatGPT or another LLM.",
   dict_title:"Reversible dictionary", dict_hint:"stays here only, locally",
   th_id:"ID", th_val:"Original value", th_type:"Type",
   callout:"Paste here the <b>LLM's answer</b> (containing placeholders like <span class=\"kbd\">[FULLNAME_1]</span>): the app puts the real values back using this session's dictionary. If you closed and reopened the app, <b>load the .json dictionary</b> you saved.",
