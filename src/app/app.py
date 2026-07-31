@@ -837,6 +837,7 @@ PAGE = r"""
   </div>
 
   <div class="credits">Realizzato da <b>Simone Rizzo</b> · sponsorizzato da <b>Rizzo AI Academy</b> · <span class="u">www.rizzoaiacademy.com</span></div>
+  <div class="hint model-note" data-i18n="model_note">Il modello AI (~1,2 GB) viene scaricato automaticamente al primo avvio da avvia.bat, direttamente dalla release ufficiale del progetto open source Rizzo-PII (Rizzo AI Academy). Il download avviene una sola volta e resta salvato sul tuo PC.</div>
 </div>
 
 <div id="toast"></div>
@@ -897,6 +898,7 @@ const T = {
   anon_ph:"Il testo anonimizzato apparirà qui.",
   copy:"Copia per ChatGPT", dl:"Scarica dizionario",
   copy_hint:"Solo segnaposto: nessun dato reale lascia questo PC. Puoi incollarlo in ChatGPT o in un altro LLM in sicurezza.",
+  model_note:"Il modello AI (~1,2 GB) viene scaricato automaticamente al primo avvio da avvia.bat, direttamente dalla release ufficiale del progetto open source Rizzo-PII (Rizzo AI Academy). Il download avviene una sola volta e resta salvato sul tuo PC.",
   dict_title:"Dizionario reversibile", dict_hint:"resta solo qui, in locale",
   th_id:"ID", th_val:"Valore originale", th_type:"Tipo",
   callout:"Incolla qui la <b>risposta dell'LLM</b> (che contiene i placeholder come <span class=\"kbd\">[FULLNAME_1]</span>): l'app rimette i valori veri usando il dizionario di questa sessione. Se hai chiuso e riaperto l'app, <b>carica il dizionario .json</b> che avevi salvato.",
@@ -941,6 +943,7 @@ const T = {
   anon_ph:"The anonymized text will appear here.",
   copy:"Copy for ChatGPT", dl:"Download dictionary",
   copy_hint:"Placeholders only: no real data leaves this PC. You can safely paste it into ChatGPT or another LLM.",
+  model_note:"The AI model (~1.2 GB) is downloaded automatically on first run by avvia.bat, directly from the official release of the open-source Rizzo-PII project (Rizzo AI Academy). The download happens only once and stays on your PC.",
   dict_title:"Reversible dictionary", dict_hint:"stays here only, locally",
   th_id:"ID", th_val:"Original value", th_type:"Type",
   callout:"Paste here the <b>LLM's answer</b> (containing placeholders like <span class=\"kbd\">[FULLNAME_1]</span>): the app puts the real values back using this session's dictionary. If you closed and reopened the app, <b>load the .json dictionary</b> you saved.",
