@@ -206,6 +206,10 @@ DETECTORS = [
                 r"|elementare|primaria|secondaria))?|conservatorio|politecnico)"
                 r"(?:\s+(?:di|degli|delle|del|della|e|[A-Z][\w'.\-]*)){1,6}"),
      None, True),  # Istituto scolastico/formativo + nome proprio: span intero, spesso assente dal training (issue #11)
+    ("PROVINCE",
+     re.compile(r"\b\d{5}\s+[A-Z][\w'\-]*(?:\s+[\w'\-]+){0,3}\s*,\s*"
+                r"(?:[A-Z]{2}\b|[A-Z][\w'\-]*(?:\s+[\w'\-]+){0,2})"),
+     None, True),  # CAP+citta' e provincia/localita' dopo virgola: span intero con priorita' sul modello (issue #11)
 ]
 
 
