@@ -45,6 +45,30 @@ if not exist ".venv\Scripts\python.exe" (
     )
 )
 
+if not exist "models" mkdir "models"
+set "MODEL_FOUND="
+for /d %%D in ("models\rizzo-pii-0.3B-v*") do set "MODEL_FOUND=1"
+if not defined MODEL_FOUND (
+    echo ============================================================
+    echo   Primo avvio: scarico il modello AI ufficiale, circa 1.2 GB
+    echo   Fonte: release ufficiale del progetto originale Rizzo-AI-Academy/rizzo-pii
+    echo   https://github.com/Rizzo-AI-Academy/rizzo-pii/releases/tag/v1.0.0
+    echo   Il download avviene una sola volta e puo' richiedere alcuni minuti.
+    echo   Non chiudere questa finestra.
+    echo ============================================================
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; Invoke-WebRequest -Uri 'https://github.com/Rizzo-AI-Academy/rizzo-pii/releases/download/v1.0.0/rizzo-pii-0.3B-v1.2.0.zip' -OutFile 'models\rizzo-pii-0.3B-v1.2.0.zip'; Expand-Archive -Path 'models\rizzo-pii-0.3B-v1.2.0.zip' -DestinationPath 'models' -Force; Remove-Item 'models\rizzo-pii-0.3B-v1.2.0.zip'"
+    if errorlevel 1 (
+        echo ERRORE durante il download automatico del modello AI.
+        echo Puoi scaricarlo manualmente da:
+        echo   https://github.com/Rizzo-AI-Academy/rizzo-pii/releases/tag/v1.0.0
+        echo e scompattarlo nella cartella models
+        pause
+        exit /b 1
+    )
+    echo Modello scaricato e installato correttamente.
+    echo.
+)
+
 echo Avvio il server locale: il browser si aprira' automaticamente su http://127.0.0.1:5005
 echo Per chiudere l'app, chiudi semplicemente questa finestra.
 echo.
