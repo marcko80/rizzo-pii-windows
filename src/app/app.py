@@ -194,6 +194,18 @@ DETECTORS = [
      re.compile(r"\b(?:Gennaio|Febbraio|Marzo|Aprile|Maggio|Giugno|Luglio|Agosto|Settembre|Ottobre|Novembre|Dicembre)"
                 r"\s+\d{4}(?:\s*-\s*(?:Gennaio|Febbraio|Marzo|Aprile|Maggio|Giugno|Luglio|Agosto|Settembre|Ottobre|Novembre|Dicembre)\s+\d{4})?\b", re.IGNORECASE),
      None, True),  # Intervalli 'Mese AAAA - Mese AAAA' (anche mese singolo): span intero con priorita' sul modello (issue #11)
+    ("ORG",
+     re.compile(r"\b[A-Z0-9][\w'.\-]*(?:\s+[A-Z0-9][\w'.\-]*){0,4}\s+"
+                r"(?i:s\.?\s?r\.?\s?l\.?(?:\s?s\.?)?|s\.?\s?p\.?\s?a\.?|s\.?\s?n\.?\s?c\.?|s\.?\s?a\.?\s?s\.?"
+                r"|s\.?\s?c\.?\s?a\.?\s?r\.?\s?l\.?|soc\.?\s?coop\.?|onlus|cooperativa)"),
+     None, True),  # Ragione sociale con suffisso societario (anche sigle/numeri nel nome): span intero (issue #11)
+    ("ORG",
+     re.compile(r"\b(?i:istituto\s+(?:tecnico|professionale|comprensivo|superiore|alberghiero)|i\.?t\.?i\.?s\.?"
+                r"|i\.?p\.?s\.?i\.?a\.?|i\.?t\.?c\.?|i\.?i\.?s\.?|liceo(?:\s+(?:scientifico|classico|linguistico"
+                r"|artistico|musicale))?|universit[aà]'?(?:\s+degli\s+studi)?|accademia|scuola(?:\s+(?:media"
+                r"|elementare|primaria|secondaria))?|conservatorio|politecnico)"
+                r"(?:\s+(?:di|degli|delle|del|della|e|[A-Z][\w'.\-]*)){1,6}"),
+     None, True),  # Istituto scolastico/formativo + nome proprio: span intero, spesso assente dal training (issue #11)
 ]
 
 
