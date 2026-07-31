@@ -190,6 +190,10 @@ DETECTORS = [
     ("TARGA",
      re.compile(r"\b[A-Za-z]{2}\s?\d{3}\s?[A-Za-z]{2}\b"),
      None, True),
+    ("DATERANGE",
+     re.compile(r"\b(?:Gennaio|Febbraio|Marzo|Aprile|Maggio|Giugno|Luglio|Agosto|Settembre|Ottobre|Novembre|Dicembre)"
+                r"\s+\d{4}(?:\s*-\s*(?:Gennaio|Febbraio|Marzo|Aprile|Maggio|Giugno|Luglio|Agosto|Settembre|Ottobre|Novembre|Dicembre)\s+\d{4})?\b", re.IGNORECASE),
+     None, True),  # Intervalli 'Mese AAAA - Mese AAAA' (anche mese singolo): span intero con priorita' sul modello (issue #11)
 ]
 
 
