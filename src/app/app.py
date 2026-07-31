@@ -395,8 +395,12 @@ def analyze_route():
     text = ""
     if "pdf" in request.files and request.files["pdf"].filename:
         data = request.files["pdf"].read()
-        with fitz.open(stream=data, filetype="pdf") as doc:
-            text = "\n".join(page.get_text() for page in doc)
+        try:
+            with fitz.open(stream=data, filetype="pdf") as doc:
+                text = "\n".join(page.get_text() for page in doc)
+        except Exception:
+            return jsonify({"error": "File non valido: e' richiesto un PDF leggibile "
+                                      "(il file caricato non sembra un PDF, oppure e' danneggiato)."}), 400
     else:
         text = (request.get_json(silent=True) or {}).get("text", "")
     text = text.strip()
@@ -405,6 +409,12 @@ def analyze_route():
     out = analyze(text)
     out["source_text"] = text
     return jsonify(out)
+
+
+@app.errorhandler(413)
+def too_large(_e):
+    mb = app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024)
+    return jsonify({"error": f"File troppo grande: il limite massimo e' {mb} MB."}), 413
 
 
 # --------------------------------------------------------------------------- #
@@ -855,7 +865,7 @@ const T = {
   tagline:"modello locale su CPU · GDPR compliant", badge:"100% in locale",
   notice:"<b>Versione in sviluppo.</b> Il modello AI non è perfetto e può commettere errori: verifica sempre il risultato prima di usarlo. Queste sono le prime versioni e il progetto è completamente <b>open source</b>. Se ti è utile, <b>lascia una ⭐ alla repo</b> e contribuisci a migliorarlo: <a href=\"https://github.com/Rizzo-AI-Academy/rizzo-pii\" target=\"_blank\" rel=\"noopener\">apri la repo su GitHub ↗</a>",
   tab1:"Anonimizza", tab2:"Ripristina la risposta",
-  in_title:"① Il tuo documento", in_hint:"incolla testo o trascina un PDF",
+  in_title:"① Il tuo documento", in_hint:"incolla testo o trascina un PDF (max 50 MB)",
   src_ph:"Incolla qui il testo dell'atto, del contratto o della sentenza…\n\nOppure trascina un PDF nell'area qui sotto.",
   drop:"Trascina un <b>PDF</b> qui, oppure <b>scegli un file</b>",
   go:"Anonimizza", clear:"Pulisci",
@@ -895,7 +905,7 @@ const T = {
   tagline:"local model on CPU · GDPR compliant", badge:"100% local",
   notice:"<b>Work in progress.</b> The AI model isn't perfect and can make mistakes: always double-check the result before relying on it. These are the very first versions and the project is fully <b>open source</b>. If you find it useful, <b>leave a ⭐ on the repo</b> and help improve it: <a href=\"https://github.com/Rizzo-AI-Academy/rizzo-pii\" target=\"_blank\" rel=\"noopener\">open the repo on GitHub ↗</a>",
   tab1:"Anonymize", tab2:"Restore the answer",
-  in_title:"① Your document", in_hint:"paste text or drop a PDF",
+  in_title:"① Your document", in_hint:"paste text or drop a PDF (max 50 MB)",
   src_ph:"Paste here the text of the deed, contract or judgment…\n\nOr drop a PDF onto the area below.",
   drop:"Drop a <b>PDF</b> here, or <b>choose a file</b>",
   go:"Anonymize", clear:"Clear",
