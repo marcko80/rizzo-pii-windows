@@ -76,13 +76,21 @@ OVERLAP = 20         # parole di sovrapposizione tra chunk consecutivi
 # --------------------------------------------------------------------------- #
 device = 0 if torch.cuda.is_available() else -1
 print(f"Carico il modello da {MODEL_DIR} su {'GPU' if device == 0 else 'CPU'}...")
-nlp = pipeline(
-    "token-classification",
-    model=MODEL_DIR,
-    tokenizer=MODEL_DIR,
-    aggregation_strategy="simple",
-    device=device,
-)
+try:
+    nlp = pipeline(
+        "token-classification",
+        model=MODEL_DIR,
+        tokenizer=MODEL_DIR,
+        aggregation_strategy="simple",
+        device=device,
+    )
+except Exception as e:
+    print(f"ERRORE: impossibile caricare il modello PII da: {MODEL_DIR}")
+    print(f"Dettaglio: {e}")
+    print("Il modello non e' incluso nel codice sorgente: va addestrato con "
+          "src/training/train_pii.py oppure ottenuto dalla build/installer ufficiale. "
+          "Vedi CLAUDE.md e docs/BUILD.md.")
+    sys.exit(1)
 print("Modello pronto.")
 
 app = Flask(__name__)
@@ -1186,6 +1194,12 @@ if __name__ == "__main__":
         sys.exit(server_config.EXIT_PORT_CONFLICT)
 
     print(f"Server su http://{_host}:{_port}")
+    try:
+        import threading
+        import webbrowser
+        threading.Timer(1.5, lambda: webbrowser.open(f"http://{_host}:{_port}")).start()
+    except Exception:
+        pass
     try:
         app.run(host=_host, port=_port, threaded=True)
     except OSError as e:
